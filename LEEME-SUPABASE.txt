@@ -1,0 +1,30 @@
+# Conexión de la app de pedidos con Supabase
+
+## Qué se conectó
+- Productos (`products`)
+- Clientes (`clientes`)
+- Pedidos (`historialPedidos`)
+- Ventas (`ventasRealizadas`)
+- Cuentas por cobrar (`cuentasPorCobrar`)
+- Fecha de reinicio de visitas (`ultimaFechaVisita`)
+
+Los cambios se guardan en Supabase al modificar los datos y se reciben en tiempo real en las otras sesiones abiertas. El carrito y los datos de sesión permanecen locales por dispositivo/usuario.
+
+## Configuración
+1. Crea un proyecto en https://supabase.com.
+2. En Project Settings > API copia Project URL y la clave `anon` / publishable.
+3. Abre `supabase-config.js` y reemplaza:
+   - `https://TU-PROYECTO.supabase.co`
+   - `TU_SUPABASE_ANON_KEY`
+   Nunca coloques la `service_role` key en el navegador.
+4. En Supabase > SQL Editor ejecuta todo el contenido de `supabase-setup.sql`.
+5. En Authentication > Providers deja habilitado Email.
+6. En Authentication > Users crea manualmente los usuarios autorizados (no se incluye registro público).
+7. Publica todos los archivos juntos en un hosting HTTPS. Mantén `login.html`, `supabase-config.js` y `supabase-sync.js` en la misma carpeta que las páginas.
+8. Abre `login.html`, inicia sesión con un usuario creado en Supabase. Los datos se cargan y la app comienza a sincronizar.
+
+## Importante
+- La tabla permite compartir los datos entre todos los usuarios autenticados del proyecto. La autenticación protege el acceso, pero cualquier usuario autenticado puede leer y modificar los datos compartidos. Para separar permisos por administrador/vendedor o limitar registros por usuario, hay que definir roles y políticas RLS específicas antes de ponerla en producción.
+- Los usuarios y roles que la app guarda actualmente en localStorage no son una fuente segura de autorización. Administra las cuentas desde Supabase Authentication.
+- Supabase Realtime puede tardar unos segundos en reflejar un cambio según la conexión.
+- Si ya tienes datos guardados localmente en el dispositivo desde el que haces la primera conexión, inicia sesión: las claves que aún no existan en la nube se subirán automáticamente. Si la nube ya tiene datos para una clave, esos datos tienen prioridad.
