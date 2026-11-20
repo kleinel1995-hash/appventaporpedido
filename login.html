@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f5f7">
+<title>Iniciar sesión</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--orange:#f26a21;--orange-dark:#a83b0b;--bg:#f4f5f7;--text:#111827;--muted:#737985;--line:#e7e8eb}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+body{min-height:100vh;background:linear-gradient(145deg,#fff 0%,#fff1e8 100%);display:grid;place-items:center;padding:22px;color:var(--text)}
+.login{width:min(100%,420px);background:#fff;border:1px solid var(--line);border-radius:22px;padding:32px;box-shadow:0 18px 55px #11182712}
+.brand{width:64px;height:64px;border-radius:18px;background:var(--orange-light,#fff1e8);color:var(--orange);display:grid;place-items:center;font-size:27px;margin:0 auto 18px}
+h1{text-align:center;font-size:25px;margin-bottom:7px}
+.sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:28px}
+label{display:block;font-size:13px;font-weight:700;margin:16px 0 8px}
+.field{position:relative}
+input{width:100%;height:49px;border:1px solid var(--line);border-radius:11px;padding:0 14px;font-size:15px;outline:none;background:#fff}
+input:focus{border-color:var(--orange);box-shadow:0 0 0 3px #f26a211c}
+.field i{position:absolute;right:15px;top:17px;color:#858b95;cursor:pointer}
+button{width:100%;height:50px;border:0;border-radius:11px;background:var(--orange);color:#fff;font-size:15px;font-weight:700;margin-top:24px;cursor:pointer}
+button:disabled{opacity:.65;cursor:wait}
+#error{display:none;margin-top:15px;padding:11px;border-radius:9px;background:#ffeaea;color:#b42318;font-size:13px}
+.note{text-align:center;color:#8a9099;font-size:12px;margin-top:22px}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<main class="login">
+  <div class="brand"><i class="fa-solid fa-boxes-stacked"></i></div>
+  <h1>Bienvenido</h1>
+  <p class="sub">Inicia sesión para acceder al panel de pedidos</p>
+  <form id="loginForm">
+    <label for="email">Correo electrónico</label>
+    <div class="field"><input id="email" type="email" autocomplete="username" placeholder="correo@ejemplo.com" required></div>
+    <label for="password">Contraseña</label>
+    <div class="field"><input id="password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required><i class="fa-regular fa-eye" id="togglePass"></i></div>
+    <button id="submit" type="submit">Iniciar sesión</button>
+    <div id="error" role="alert"></div>
+  </form>
+  <p class="note">Acceso privado · Contacta al administrador para crear tu usuario</p>
+</main>
+<script>
+const client = window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+const form=document.getElementById("loginForm"),btn=document.getElementById("submit"),err=document.getElementById("error");
+document.getElementById("togglePass").onclick=()=>{const p=document.getElementById("password");p.type=p.type==="password"?"text":"password"};
+(async()=>{if(!window.SUPABASE_URL||window.SUPABASE_URL.includes("TU-PROYECTO")){err.textContent="Configura primero los datos de Supabase en config.js.";err.style.display="block";return}const {data}=await client.auth.getSession();if(data.session)location.replace("menu.html")})();
+form.addEventListener("submit",async e=>{e.preventDefault();err.style.display="none";btn.disabled=true;btn.textContent="Verificando...";
+const {error}=await client.auth.signInWithPassword({email:document.getElementById("email").value.trim(),password:document.getElementById("password").value});
+if(error){err.textContent=error.message==="Invalid login credentials"?"Correo o contraseña incorrectos.":error.message;err.style.display="block";btn.disabled=false;btn.textContent="Iniciar sesión";return}
+location.replace("menu.html");
+});
+</script>
+</body></html>
